@@ -1,0 +1,157 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Transaction {
+public:
+    string date;
+    string description;
+    double amount;
+
+    Transaction(string date, string description, double amount) {
+        this->date = date;
+        this->description = description;
+        this->amount = amount;
+    }
+};
+
+class Account {
+public:
+    int accountNumber;
+    double balance;
+    vector<Transaction> transactions;
+
+    Account(int accountNumber) {
+        this->accountNumber = accountNumber;
+        balance = 0.0;
+    }
+
+    void deposit(double amount) {
+        balance += amount;
+        transactions.push_back(Transaction("Today", "Deposit", amount));
+    }
+
+    void withdraw(double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            transactions.push_back(Transaction("Today", "Withdrawal", -amount));
+        }
+        else {
+            cout << "Insufficient balance." << endl;
+        }
+    }
+
+    void transfer(Account& destination, double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            destination.balance += amount;
+            transactions.push_back(Transaction("Today", "Transfer to " + to_string(destination.accountNumber), -amount));
+            destination.transactions.push_back(Transaction("Today", "Transfer from " + to_string(accountNumber), amount));
+        }
+        else {
+            cout << "Insufficient balance." << endl;
+        }
+    }
+
+    void displayTransactions() {
+        cout << "Transaction History:" << endl;
+        for (const auto& transaction : transactions) {
+            cout << transaction.date << " - " << transaction.description << ": " << transaction.amount << endl;
+        }
+    }
+};
+
+class Customer {
+public:
+    string name;
+    int customerId;
+    vector<Account> accounts;
+
+    Customer(string name, int customerId) {
+        this->name = name;
+        this->customerId = customerId;
+    }
+
+    void createAccount(int accountNumber) {
+        accounts.push_back(Account(accountNumber));
+    }
+
+    Account* getAccount(int accountNumber) {
+        for (auto& account : accounts) {
+            if (account.accountNumber == accountNumber) {
+                return &account;
+            }
+        }
+        return nullptr;
+    }
+
+    void displayAccountInfo() {
+        cout << "Customer: " << name << " (ID: " << customerId << ")" << endl;
+        cout << "Accounts:" << endl;
+        for (const auto& account : accounts) {
+            cout << "Account Number: " << account.accountNumber << " | Balance: " << account.balance << endl;
+        }
+    }
+};
+
+class BankingService {
+public:
+    vector<Customer> customers;
+    int customerIdCounter;
+    int accountNumberCounter;
+
+    BankingService() {
+        customerIdCounter = 1;
+        accountNumberCounter = 1;
+    }
+
+    void createCustomer(string name) {
+        customers.push_back(Customer(name, customerIdCounter++));
+    }
+
+    Customer* getCustomer(int customerId) {
+        for (auto& customer : customers) {
+            if (customer.customerId == customerId) {
+                return &customer;
+            }
+        }
+        return nullptr;
+    }
+};
+
+int main() {
+    BankingService bankingService;
+    bankingService.createCustomer("wendy");
+
+    Customer* customer = bankingService.getCustomer(1);
+    if (customer != nullptr) {
+        customer->createAccount(1000);
+        customer->createAccount(1004);
+
+        Account* account1 = customer->getAccount(1000);
+        if (account1 != nullptr) {
+            account1->deposit(800);
+            account1->withdraw(509.0);
+        }
+
+        Account* account2 = customer->getAccount(2000);
+        if (account2 != nullptr) {
+            account2->deposit(1000.0);
+        
+		}
+        
+
+        customer->displayAccountInfo();
+
+        Account* account3 = customer->getAccount(10003);
+        if (account3 != nullptr) {
+            // This account doesn't exist, so the pointer will be nullptr
+        }
+
+        account1->displayTransactions();
+    }
+
+    return 0;
+}
